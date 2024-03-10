@@ -2,41 +2,26 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/ridhoafwani/gingormpostgres/config"
 	"github.com/ridhoafwani/gingormpostgres/models"
 )
 
 func main() {
-	db := config.DatabaseConnection()
+	dbName := "orders_by"
+	defaultDb := "postgres"
+	db := config.DatabaseConnection(&defaultDb)
 
-	// check if db exists
-	stmt := fmt.Sprintf("SELECT * FROM pg_database WHERE datname = '%s';", config.DBName)
-	rs := db.Raw(stmt)
-	if rs.Error != nil {
-		log.Fatal(rs.Error) 
+	var exists bool
+	db.Raw("SELECT EXISTS(SELECT FROM pg_database WHERE datname = ?)", dbName).Scan(&exists)
+
+	if !exists {
+		db.Exec("CREATE DATABASE " + dbName)
 	}
 
-	// if not create it
-	var rec = make(map[string]interface{})
-	if rs.Find(rec); len(rec) == 0 {
-		stmt := fmt.Sprintf("CREATE DATABASE %s;", "orders_by")
-		if rs := db.Exec(stmt); rs.Error != nil {
-			log.Fatal(rs.Error)
-		}
+	db = config.DatabaseConnection(&dbName)
 
-		// close db connection
-		sql, err := db.DB()
-		defer func() {
-			_ = sql.Close()
-		}()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
-
-	db.AutoMigrate(&models.Items{}, &models.Orders{})
+	db.AutoMigrate(&models.Item{}, &models.Orders{})
 	fmt.Println("Migration complete")
+
 }

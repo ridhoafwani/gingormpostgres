@@ -12,12 +12,10 @@ const (
 	port     = 5432
 	user     = "postgres"
 	password = "postgres"
-	DBName   = "postgres"
 )
 
-func DatabaseConnection() *gorm.DB {
-
-	sqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, DBName)
+func DatabaseConnection(dbName *string) *gorm.DB {
+	sqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, *dbName)
 
 	db, err := gorm.Open(postgres.Open(sqlInfo), &gorm.Config{})
 	// helper.ErrorPanic(err)
