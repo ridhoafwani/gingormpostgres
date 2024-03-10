@@ -50,7 +50,6 @@ func (o OrdersController) CreateOrders(ctx *gin.Context) {
 
 func (o OrdersController) GetOrders(ctx *gin.Context) {
 	var orders []models.Orders
-	// Include related Items using Preload
 	result := o.Db.Preload("Items").Find(&orders)
 
 	if result.Error != nil {
@@ -61,21 +60,14 @@ func (o OrdersController) GetOrders(ctx *gin.Context) {
 	ctx.JSON(200, orders)
 }
 
-// func (o OrdersController) GetOrders(ctx *gin.Context) {
-// 	var orders []models.Orders
-// 	o.Db.Find(&orders)
-
-// 	for order := range orders {
-// 		o.Db.Model(&orders[order]).Association("Items").Find(&orders[order].Items)
-// 	}
-
-// 	ctx.JSON(200, orders)
-// }
-
-func (o OrdersController) GetOrdersById(ctx *gin.Context) {
+func (o OrdersController) GetOrderById(ctx *gin.Context) {
 	var orders models.Orders
 	id := ctx.Param("id")
-	o.Db.First(&orders, id)
+	result := o.Db.Preload("Items").First(&orders, id)
+	if result.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
 	ctx.JSON(200, orders)
 }
 
@@ -92,10 +84,33 @@ func (o OrdersController) UpdateOrders(ctx *gin.Context) {
 }
 
 func (o OrdersController) DeleteOrders(ctx *gin.Context) {
-	var orders models.Orders
+	var order models.Orders
+	var item models.Item
 	id := ctx.Param("id")
-	o.Db.First(&orders, id)
-	o.Db.Delete(&orders)
-	ctx.JSON(200, gin.H{"message": "Order deleted"})
 
+	result := o.Db.First(&order, id)
+
+	tx := o.Db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			panic(r)
+		}
+	}()
+
+	if result.Error == nil {
+		if err := o.Db.Where(&models.Item{OrderId: order.OrderId}).Delete(&item).Error; err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete associated items"})
+			return
+		}
+	}
+
+	if err := tx.Delete(&order).Error; err != nil {
+		tx.Rollback()
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete order"})
+		return
+	}
+
+	tx.Commit()
+	ctx.JSON(http.StatusOK, gin.H{"message": "Order deleted"})
 }

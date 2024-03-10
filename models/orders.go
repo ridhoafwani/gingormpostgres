@@ -6,5 +6,5 @@ type Orders struct {
 	OrderId      int    `gorm:"type:int;primary_key;autoIncrement:true"`
 	CustomerName string `gorm:"type: varchar(255)"`
 	OrderedAt    time.Time
-	Items        []Item `gorm:"foreignKey:OrderId"`
+	Items        []Item `gorm:"foreignKey:OrderId;constraint:OnUpdate:CASCADE;OnDelete:CASCADE"`
 }

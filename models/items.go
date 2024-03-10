@@ -5,5 +5,5 @@ type Item struct {
 	ItemCode    string `gorm:"type:varchar(255)"`
 	Description string `gorm:"type:varchar(255)"`
 	Quantity    int    `gorm:"type:int"`
-	OrderId     int    `gorm:"type:int;foreignKey:OrderId;constraint:OnUpdate:CASCADE;OnDelete:SET NULL"`
+	OrderId     int    `gorm:"type:int"`
 }

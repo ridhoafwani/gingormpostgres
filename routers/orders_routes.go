@@ -8,7 +8,7 @@ import (
 func configureOrdersRouter(router *gin.RouterGroup, controller *controllers.OrdersController) {
 	router.GET("", controller.GetOrders)
 	router.POST("", controller.CreateOrders)
-	router.GET("/:id", func(ctx *gin.Context) {})
+	router.GET("/:id", controller.GetOrderById)
 	router.PUT("/:id", func(ctx *gin.Context) {})
 	router.DELETE("/:id", controller.DeleteOrders)
 }
