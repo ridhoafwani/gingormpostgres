@@ -25,11 +25,11 @@ func NewOrdersController(db *gorm.DB) *OrdersController {
 // @Tags Orders
 // @Accept json
 // @Produce json
-// @Param order body requests.Order true "Order"
+// @Param order body requests.CreateOrder true "Order"
 // @Success 201 {string} string "Order Created"
 // @Router /orders [post]
 func (o OrdersController) CreateOrders(ctx *gin.Context) {
-	var orderRequest requests.Order
+	var orderRequest requests.CreateOrder
 	if err := ctx.ShouldBindJSON(&orderRequest); err != nil {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -96,9 +96,19 @@ func (o OrdersController) GetOrderById(ctx *gin.Context) {
 	ctx.JSON(200, orders)
 }
 
+// UpdateOrder godoc
+// @Summary Update an order
+// @Description Update an order with items
+// @Tags Orders
+// @Accept json
+// @Produce json
+// @Param id path string true "Order ID"
+// @Param order body requests.UpdateOrder true "Order"
+// @Success 200 {string} string "Order Updated"
+// @Router /orders/{id} [put]
 func (o OrdersController) UpdateOrder(ctx *gin.Context) {
 	var orderID string = ctx.Param("id")
-	var updatedOrderRequest requests.Order
+	var updatedOrderRequest requests.UpdateOrder
 
 	if err := ctx.ShouldBindJSON(&updatedOrderRequest); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -106,6 +116,7 @@ func (o OrdersController) UpdateOrder(ctx *gin.Context) {
 	}
 
 	var existingOrder models.Orders
+	var item models.Item
 	result := o.Db.First(&existingOrder, orderID)
 
 	if result.Error != nil {
@@ -133,7 +144,7 @@ func (o OrdersController) UpdateOrder(ctx *gin.Context) {
 		return
 	}
 
-	if err := tx.Delete(&models.Item{OrderId: existingOrder.OrderId}).Error; err != nil {
+	if err := tx.Where(&models.Item{OrderId: existingOrder.OrderId}).Delete(&item).Error; err != nil {
 		tx.Rollback()
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete associated items"})
 		return

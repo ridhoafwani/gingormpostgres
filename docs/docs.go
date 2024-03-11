@@ -56,7 +56,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.Order"
+                            "$ref": "#/definitions/requests.CreateOrder"
                         }
                     }
                 ],
@@ -94,6 +94,45 @@ const docTemplate = `{
                         "description": "Order",
                         "schema": {
                             "$ref": "#/definitions/models.Orders"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an order with items",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Update an order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Order",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.UpdateOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order Updated",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -168,7 +207,7 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.Item": {
+        "requests.CreateItem": {
             "type": "object",
             "properties": {
                 "description": {
@@ -182,7 +221,7 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.Order": {
+        "requests.CreateOrder": {
             "type": "object",
             "properties": {
                 "customerName": {
@@ -191,11 +230,39 @@ const docTemplate = `{
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/requests.Item"
+                        "$ref": "#/definitions/requests.CreateItem"
                     }
-                },
-                "orderedAt": {
+                }
+            }
+        },
+        "requests.UpdateItem": {
+            "type": "object",
+            "properties": {
+                "description": {
                     "type": "string"
+                },
+                "itemCode": {
+                    "type": "string"
+                },
+                "itemId": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "requests.UpdateOrder": {
+            "type": "object",
+            "properties": {
+                "customerName": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/requests.UpdateItem"
+                    }
                 }
             }
         }

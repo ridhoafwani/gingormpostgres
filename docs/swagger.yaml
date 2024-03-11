@@ -25,7 +25,7 @@ definitions:
       orderedAt:
         type: string
     type: object
-  requests.Item:
+  requests.CreateItem:
     properties:
       description:
         type: string
@@ -34,16 +34,34 @@ definitions:
       quantity:
         type: integer
     type: object
-  requests.Order:
+  requests.CreateOrder:
     properties:
       customerName:
         type: string
       items:
         items:
-          $ref: '#/definitions/requests.Item'
+          $ref: '#/definitions/requests.CreateItem'
         type: array
-      orderedAt:
+    type: object
+  requests.UpdateItem:
+    properties:
+      description:
         type: string
+      itemCode:
+        type: string
+      itemId:
+        type: integer
+      quantity:
+        type: integer
+    type: object
+  requests.UpdateOrder:
+    properties:
+      customerName:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/requests.UpdateItem'
+        type: array
     type: object
 info:
   contact: {}
@@ -73,7 +91,7 @@ paths:
         name: order
         required: true
         schema:
-          $ref: '#/definitions/requests.Order'
+          $ref: '#/definitions/requests.CreateOrder'
       produces:
       - application/json
       responses:
@@ -119,6 +137,32 @@ paths:
           schema:
             $ref: '#/definitions/models.Orders'
       summary: Get an order by ID
+      tags:
+      - Orders
+    put:
+      consumes:
+      - application/json
+      description: Update an order with items
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Order
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UpdateOrder'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order Updated
+          schema:
+            type: string
+      summary: Update an order
       tags:
       - Orders
 swagger: "2.0"

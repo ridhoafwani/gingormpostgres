@@ -9,6 +9,6 @@ func configureOrdersRouter(router *gin.RouterGroup, controller *controllers.Orde
 	router.GET("", controller.GetOrders)
 	router.POST("", controller.CreateOrders)
 	router.GET("/:id", controller.GetOrderById)
-	router.PUT("/:id", func(ctx *gin.Context) {})
+	router.PUT("/:id", controller.UpdateOrder)
 	router.DELETE("/:id", controller.DeleteOrders)
 }
