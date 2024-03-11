@@ -1,0 +1,124 @@
+definitions:
+  models.Item:
+    properties:
+      description:
+        type: string
+      itemCode:
+        type: string
+      itemId:
+        type: integer
+      orderId:
+        type: integer
+      quantity:
+        type: integer
+    type: object
+  models.Orders:
+    properties:
+      customerName:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/models.Item'
+        type: array
+      orderId:
+        type: integer
+      orderedAt:
+        type: string
+    type: object
+  requests.Item:
+    properties:
+      description:
+        type: string
+      itemCode:
+        type: string
+      quantity:
+        type: integer
+    type: object
+  requests.Order:
+    properties:
+      customerName:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/requests.Item'
+        type: array
+      orderedAt:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /orders:
+    get:
+      description: Get all orders with items
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Orders
+          schema:
+            items:
+              $ref: '#/definitions/models.Orders'
+            type: array
+      summary: Get all orders
+      tags:
+      - Orders
+    post:
+      consumes:
+      - application/json
+      description: Create an order with items
+      parameters:
+      - description: Order
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/requests.Order'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Order Created
+          schema:
+            type: string
+      summary: Create an order
+      tags:
+      - Orders
+  /orders/{id}:
+    delete:
+      description: Delete an order with items
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order deleted
+          schema:
+            type: string
+      summary: Delete an order
+      tags:
+      - Orders
+    get:
+      description: Get an order by ID with items
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order
+          schema:
+            $ref: '#/definitions/models.Orders'
+      summary: Get an order by ID
+      tags:
+      - Orders
+swagger: "2.0"
